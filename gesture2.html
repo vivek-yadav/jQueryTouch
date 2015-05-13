@@ -32,6 +32,7 @@
     Scale<br />
     <input type="checkbox" id="rotatecheckbox" checked="checked" />
     Rotate<br />
+    <button id="drag-button">Click</button>
     <div id="drag-target">
         :-)</div>
     <div>
@@ -169,7 +170,8 @@
 	            drag: function () { return ischecked("#dragcheckbox"); },
 	            scale: function () { return ischecked("#scalecheckbox"); },
 	            rotate: function () { return ischecked("#rotatecheckbox"); },
-	            touchtarget: null
+	            touchtarget: null,
+	            linkItem:$("#drag-button")
 	        }
         );
     </script>
