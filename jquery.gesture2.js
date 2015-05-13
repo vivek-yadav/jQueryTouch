@@ -26,9 +26,17 @@
                 rotate: true,
 
                 // we can make this jQuery object responds to touch on another jQuery
-                touchtarget: null
+                touchtarget: null,
+                // LinkItem which will move and transform along with this
+                linkItem: null
             },
             options);
+
+        var linkItem = options.linkItem ? $(options.linkItem) : null,
+            _linkItem = linkItem,
+            linkItem_original_x = 0,
+            linkItem_original_y = 0,
+            linkItem_original_css = "";
 
         var touchtarget = options.touchtarget ? $(options.touchtarget) : this,
             _this = this,
@@ -49,12 +57,29 @@
                     dy = ((event.touches.length == 0) ? event.pageY : event.touches[0].pageY) - original_y,
                     new_css = "translate(" + dx + "px," + dy + "px) " + original_css;
                 _this.__transform__(new_css);
+                
+                // Transform LinkItem
+                if(_linkItem){
+                    
+                    var linkItem_dx = ((event.touches.length == 0) ? event.pageX : event.touches[0].pageX) - linkItem_original_x,
+                        linkItem_dy = ((event.touches.length == 0) ? event.pageY : event.touches[0].pageY) - linkItem_original_y,
+                        linkItem_new_css = "translate(" + linkItem_dx + "px," + linkItem_dy + "px) " + linkItem_original_css;
+                    _linkItem.__transform__(linkItem_new_css);
+                }
             } else {
                 if (in_drag = event.type == "_gesture2_touch_start") {
                     original_x = event.touches[0].pageX;
                     original_y = event.touches[0].pageY;
                     original_css = _this.__transform__();
                     if (!original_css || original_css == "none") original_css = "";
+                    
+                    // For linkItem
+                    if(_linkItem){
+                        linkItem_original_x = event.touches[0].pageX;
+                        linkItem_original_y = event.touches[0].pageY;
+                        linkItem_original_css = _linkItem.__transform__();
+                        if (!linkItem_original_css || linkItem_original_css == "none") linkItem_original_css = "";
+                    }
                 }
             }
 
@@ -76,12 +101,32 @@
                         "translate(" + (-original_x) + "px," + (-original_y) + "px) " +
                         original_css;
                 _this.__transform__(new_css);
+                
+                // Transform LinkItem
+                if(_linkItem){
+                    var linkItem_dx = event.pageX - linkItem_original_x,
+                        linkItem_dy = event.pageY - linkItem_original_y,
+                        linkItem_new_css = (__getvalue__(options.drag) ? ("translate(" + event.pageX + "px," + event.pageY + "px) ") : ("translate(" + linkItem_original_x + "px," + linkItem_original_y + "px) ")) +
+                            (__getvalue__(options.scale) ? ("scale(" + event.scale + ")") : "") +
+                            (__getvalue__(options.rotate) ? ("rotate(" + event.rotation + "rad) ") : "") +
+                            "translate(" + (-linkItem_original_x) + "px," + (-linkItem_original_y) + "px) " +
+                            linkItem_original_css;
+                    _linkItem.__transform__(linkItem_new_css);
+                }
             } else {
                 in_gesture = true;
                 original_css = _this.__transform__();
                 original_x = event.pageX;
                 original_y = event.pageY;
                 if (!original_css || original_css == "none") original_css = "";
+                
+                // For LinkItem
+                if(_linkItem){
+                    linkItem_original_css = _linkItem.__transform__();
+                    linkItem_original_x = event.pageX;
+                    linkItem_original_y = event.pageY;
+                    if (!linkItem_original_css || linkItem_original_css == "none") linkItem_original_css = "";
+                }
             }
 
             if (event.type == "_gesture2_gesture_end") {
